@@ -1,0 +1,1 @@
+- [Support assistant AI mode](support-assistant-ai-mode.md) — Keep replies in no-AI demo mode unless the user explicitly opts into Gemini.

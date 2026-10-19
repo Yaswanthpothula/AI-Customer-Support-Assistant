@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "AI Customer Support Assistant"
+description = "A customer-facing support chat for BrightCart with policy-grounded FAQ answers, escalation guidance, and support ticket creation."
+version = "1.0.0"
+id = "artifacts/customer-support-assistant"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22107
+
+[services.development]
+run = "pnpm --filter @workspace/customer-support-assistant run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/customer-support-assistant", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/customer-support-assistant/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22107"
+BASE_PATH = "/"

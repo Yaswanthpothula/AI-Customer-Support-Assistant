@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: support
+    description: Customer support chat, FAQs, and support tickets
 paths:
   /healthz:
     get:
@@ -24,6 +26,68 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /support/health:
+    get:
+      operationId: getSupportHealth
+      tags: [support]
+      summary: Get support assistant status
+      responses:
+        "200":
+          description: Assistant status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SupportHealth"
+  /support/faqs:
+    get:
+      operationId: getSupportFaqs
+      tags: [support]
+      summary: List support FAQs
+      responses:
+        "200":
+          description: FAQ entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Faq"
+  /support/chat:
+    post:
+      operationId: chatWithSupport
+      tags: [support]
+      summary: Get a policy-grounded support answer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatInput"
+      responses:
+        "200":
+          description: Assistant response and escalation guidance
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatReply"
+  /support/tickets:
+    post:
+      operationId: createSupportTicket
+      tags: [support]
+      summary: Create a customer support ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketInput"
+      responses:
+        "201":
+          description: Ticket saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketCreated"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +97,102 @@ components:
           type: string
       required:
         - status
+    SupportHealth:
+      type: object
+      properties:
+        status:
+          type: string
+        app:
+          type: string
+        mode:
+          type: string
+      required: [status, app, mode]
+    Faq:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        answer:
+          type: string
+      required: [id, title, answer]
+    ChatInput:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 2
+          maxLength: 2000
+        customer_name:
+          type: ["string", "null"]
+          maxLength: 100
+        customer_email:
+          type: ["string", "null"]
+          maxLength: 254
+      required: [message]
+    ChatReply:
+      type: object
+      properties:
+        answer:
+          type: string
+        category:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high]
+        escalation_required:
+          type: boolean
+        matched_faq:
+          type: ["string", "null"]
+        mode:
+          type: string
+          enum: [demo]
+        ticket_recommended:
+          type: boolean
+        ticket_id:
+          type: ["string", "null"]
+      required:
+        - answer
+        - category
+        - priority
+        - escalation_required
+        - matched_faq
+        - mode
+        - ticket_recommended
+        - ticket_id
+    TicketInput:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 2
+          maxLength: 2000
+        customer_name:
+          type: ["string", "null"]
+          maxLength: 100
+        customer_email:
+          type: ["string", "null"]
+          maxLength: 254
+        category:
+          type: string
+          maxLength: 50
+        priority:
+          type: string
+          enum: [low, normal, high]
+        summary:
+          type: string
+          maxLength: 500
+      required: [message, category, priority, summary]
+    TicketCreated:
+      type: object
+      properties:
+        ticket_id:
+          type: string
+        status:
+          type: string
+          enum: [open]
+        message:
+          type: string
+      required: [ticket_id, status, message]
 
